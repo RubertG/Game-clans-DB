@@ -4,10 +4,10 @@ const ConectionDB = () => {
   const URL = String(process.env.DB_MONGO);
   connect(URL)
     .then(() => {
-      console.log("Estas conectado a mondoDB", process.env.DB_MONGO);
+      console.log("You are connected to the database.", process.env.DB_MONGO);
     })
-    .catch((miError) => {
-      console.log("NO encuentro a mongo", miError);
+    .catch((error) => {
+      console.log("Not found MongoDB.", error);
     });
 };
 

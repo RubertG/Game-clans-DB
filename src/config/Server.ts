@@ -3,8 +3,10 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import express from "express";
 import ConexionDB from "./ConectionDB";
-import apiPerfilRuta from "../rute/PerfilRuta";
-import apiVehiculoRuta from "../rute/VehiculoRutas";
+import PlayerRoutes from "../route/PlayerRoute";
+import PlayerCategory from "../route/PlayerCategoryRoute";
+import Clan from "../route/ClanRoute";
+import ClanCategory from "../route/ClanCategoryRoute";
 
 class Server {
   public app: express.Application;
@@ -13,11 +15,11 @@ class Server {
     dotenv.config({ path: ".env" });
     ConexionDB();
     this.app = express();
-    this.iniciarconfig();
-    this.iniciarRutas();
+    this.InitiateConfig();
+    this.initiateRoutes();
   };
 
-  public iniciarconfig() {
+  public InitiateConfig() {
     this.app.set("PORT", process.env.PORT);
     this.app.use(cors());
     this.app.use(morgan("dev"));
@@ -25,14 +27,17 @@ class Server {
     this.app.use(express.urlencoded({ extended: true }));
 
   };
-  public iniciarRutas() {
-    this.app.use("/perfil", apiPerfilRuta);
-    this.app.use("/carro", apiVehiculoRuta);
 
+  public initiateRoutes() {
+    this.app.use("/player", PlayerRoutes);
+    this.app.use("/player-category", PlayerCategory);
+    this.app.use("/clan", Clan);
+    this.app.use("/clan-category", ClanCategory);
   };
-  public iniciarServidor() {
+
+  public initiateServer() {
     this.app.listen(this.app.get("PORT"), () => {
-      console.log("Backend listo en el puerto:", this.app.get("PORT"));
+      console.log("Backend ready on port:", this.app.get("PORT"));
     });
   }
 };

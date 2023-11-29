@@ -8,15 +8,15 @@ Database for the game with players, clans and categories of players and clans. T
   - **_id**: string
   - **gamerTag**: string
   - **points**: number
-  - **categoryId**: ID PlayerCategory or PlayerCategory
-  - **clanId**: ID Clan or Clan
+  - **category**: ID PlayerCategory or PlayerCategory
+  - **clan**: ID Clan or Clan
 
 2. Clan:
   - **_id**: string
   - **name**: string
   - **description**: string
   - **points**: number
-  - **categoryId**: ID ClanCategory or ClanCategory
+  - **clanCategory**: ID ClanCategory or ClanCategory
 
 3. PlayerCategory:
   - **_id**: string
@@ -32,8 +32,8 @@ Database for the game with players, clans and categories of players and clans. T
 
 ## TODO
 
-### `[ ]` Methods GET, POST, PUT AND DELETE for each collection (Basic)
-### `[ ]` Change player points. When changing it, check if there is a change in category
+### [ ] Methods GET, POST, PUT AND DELETE for each collection (Basic)
+### [ ] Change player points. When changing it, check if there is a change in category
 -> `/player/{id}`
 
 #### Input
@@ -45,7 +45,7 @@ Database for the game with players, clans and categories of players and clans. T
 ]
 ```
 
-### `[ ]` Change clans points. When changing it, check if there is a change in category
+### [ ] Change clans points. When changing it, check if there is a change in category
 -> `/clan/{id}`
 
 #### Input
@@ -57,15 +57,15 @@ Database for the game with players, clans and categories of players and clans. T
 ]
 ```
 
-### `[ ]` Filter player by category
+### [ ] Filter player by category
 -> `/player?category=nameCategory`
-### `[ ]` Filter player by clan
+### [ ] Filter player by clan
 -> `/player?clan=nameClan`
-### `[ ]` Order players by points
+### [ ] Order players by points
 -> `/player?order=points`
-### `[ ]` Order clan by points
+### [ ] Order clan by points
 -> `/clan?order=points`
-### `[ ]` Retrieve clans along with the gamertags of the main players  
+### [x] Retrieve clans along with the gamertags of the main players  
 -> `/clan`
 
 #### Output
@@ -80,7 +80,7 @@ Database for the game with players, clans and categories of players and clans. T
         "_id": "id player",
         "gamertag": "pepitoGamer17",
         "points": 1213,
-        "idCategory": "id Category"
+        "idCategory": "id Category or object"
       }
       // 5 players with the maximum score allowed
     ]
@@ -88,7 +88,7 @@ Database for the game with players, clans and categories of players and clans. T
 ]
 ```
 
-### `[ ]` Retrieve categories players along with the gamertags of the main players
+### [x] Retrieve categories players along with the gamertags of the main players
 -> `/category-player`
 
 #### Output
@@ -111,7 +111,7 @@ Database for the game with players, clans and categories of players and clans. T
 ]
 ```
 
-### `[ ]` Retrieve categories clans along with the gamertags of the main clans
+### [ ] Retrieve categories clans along with the gamertags of the main clans
 -> `/category-clan`
 
 #### Output
