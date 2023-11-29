@@ -30,6 +30,7 @@ class ClanDao {
           _id: clan._id,
           name: clan.name,
           description: clan.description,
+          clanCategory: clan.clanCategory,
           players
         };
       }));

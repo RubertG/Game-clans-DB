@@ -13,7 +13,7 @@ class PlayerCategoryDao {
       const responseData = await Promise.all(playersCategories.map(async (pc) => {
         const categoryPlayers = await PlayerSchema.find({ playerCategory: pc._id })
           .sort({ points: 'descending' })
-          .populate('playerCategory', 'name minPoints maxPoints')
+          .populate('clan')
           .limit(5)
           .exec()
 

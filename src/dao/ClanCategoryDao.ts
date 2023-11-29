@@ -1,13 +1,61 @@
 import { type Response } from 'express'
 import ClanCategorySchema from '../schema/ClanCategorySchema'
 import { ClanCategoryEntity } from '../entity/ClanCategoryEntity'
+import ClanSchema from '../schema/ClanSchema'
+import PlayerSchema from '../schema/PlayerSchema'
 
 class ClanCategoryDao {
 
   // basic consult 
   protected static async consultClanCategory(res: Response): Promise<any> {
-    const data = await ClanCategorySchema.find().sort({ minPoints: 'ascending' })
-    res.status(200).json(data)
+    try {
+      const clanCategories = await ClanCategorySchema.find().sort({ minPoints: 'ascending' })
+
+      const responseData = await Promise.all(clanCategories.map(async (c) => {
+        const categoryClans = await ClanSchema.find({ clanCategory: c._id })
+          .sort({ points: 'descending' })
+          .populate('clanCategory')
+          .limit(5)
+          .exec()
+
+        const clans = await Promise.all(categoryClans.map(async (clan) => {
+          const categoryPlayers = await PlayerSchema.find({ clan: clan._id })
+            .sort({ points: 'descending' })
+            .populate('playerCategory')
+            .limit(5)
+            .exec()
+
+          const players = categoryPlayers.map((player) => {
+            return {
+              _id: player._id,
+              gamertag: player.gamertag,
+              points: player.points,
+              clan: player.clan
+            }
+          })
+
+          return {
+            _id: clan._id,
+            name: clan.name,
+            description: clan.description,
+            points: clan.points,
+            players
+          }
+        }))
+
+        return {
+          _id: c._id,
+          name: c.name,
+          minPoints: c.minPoints,
+          maxPoints: c.maxPoints,
+          clans
+        }
+      }))
+
+      res.status(200).json(responseData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
   }
 
   // create Clan

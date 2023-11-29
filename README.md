@@ -111,7 +111,7 @@ Database for the game with players, clans and categories of players and clans. T
 ]
 ```
 
-### [ ] Retrieve categories clans along with the gamertags of the main clans
+### [x] Retrieve categories clans along with the gamertags of the main clans
 -> `/category-clan`
 
 #### Output
