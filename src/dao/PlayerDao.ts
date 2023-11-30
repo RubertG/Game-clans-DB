@@ -3,6 +3,11 @@ import PlayerSchema from '../schema/PlayerSchema'
 import { PlayerEntity } from '../entity/PlayerEntity'
 import { playerCategoryChange, playerVerification } from '../utils/utilsDao'
 
+interface TypeQuery {
+  clan?: string
+  category?: string
+}
+
 class PlayerDao {
   // basic consult 
   protected static async consultPlayer(res: Response): Promise<any> {
@@ -128,5 +133,29 @@ class PlayerDao {
       res.status(400).json({ response: 'Player could not be searched.' })
     }
   }
+
+  // filter by category
+  protected static async filterPlayers(query: TypeQuery, res: Response): Promise<any> {
+    try {
+      let data = null
+      if (query.category) {
+        data = await PlayerSchema.find({ playerCategory: query.category })
+          .sort({ _id: -1 })
+          .populate('clan')
+          .populate('playerCategory')
+          .exec();
+      } else if (query.clan)  {
+        data = await PlayerSchema.find({ clan: query.clan })
+          .sort({ _id: -1 })
+          .populate('clan')
+          .populate('playerCategory')
+          .exec();
+      }
+      res.status(200).json(data);
+    } catch (error) {
+      res.status(400).json({ response: 'filter was not applied.' })
+    }
+  }
 }
+
 export default PlayerDao

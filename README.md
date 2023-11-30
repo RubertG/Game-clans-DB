@@ -47,12 +47,23 @@ Database for the game with players, clans and categories of players and clans. T
     "name": "name clan",
     "description": "clan description",
     "points": 123,
+    "clanCategory": {
+      "_id": "id category",
+      "name": "name category",
+      "maxPoints": 123,
+      "minPoints": 123,
+    },
     "players": [
       {
         "_id": "id player",
         "gamertag": "pepitoGamer17",
         "points": 1213,
-        "idCategory": "id Category or object"
+        "playerCategory": {
+          "_id": "id category",
+          "name": "name category",
+          "maxPoints": 123,
+          "minPoints": 123,
+        }
       }
       // 5 players with the maximum score allowed
     ]
@@ -69,7 +80,6 @@ Database for the game with players, clans and categories of players and clans. T
   {
     "_id": "id category",
     "name": "name category",
-    "description": "category description",
     "maxPoints": 123,
     "minPoints": 123,
     "players": [
@@ -77,7 +87,13 @@ Database for the game with players, clans and categories of players and clans. T
         "_id": "id player",
         "gamertag": "pepitoGamer17",
         "points": 1213,
-        "idClan": "id clan"
+        "clan": {
+          "_id": "id clan",
+          "name": "name clan",
+          "description": "clan description",
+
+          "points": 123
+        }
       }
       // 5 players with the maximum score allowed
     ]
@@ -94,21 +110,25 @@ Database for the game with players, clans and categories of players and clans. T
   {
     "_id": "id category",
     "name": "name category",
-    "description": "category description",
     "maxPoints": 123,
     "minPoints": 123,
     "clans": [
       {
-        "_id": "id category",
-        "name": "name category",
-        "description": "category description",
+        "_id": "id clan",
+        "name": "name clan",
+        "description": "clan description",
         "points": 1213,
         "players": [
           {
             "_id": "id player",
             "gamertag": "pepitoGamer17",
             "points": 1213,
-            "idClan": "id clan"
+            "playerCategory": {
+              "_id": "id category",
+              "name": "name category",
+              "maxPoints": 123,
+              "minPoints": 123,
+            }
           }
           // 5 players with the maximum score allowed
         ]
@@ -125,8 +145,8 @@ Database for the game with players, clans and categories of players and clans. T
 
 ### [x] DELETE 
 
-### [ ] Filter player by category
--> `/player?category=nameCategory`
+### [x] Filter player by category
+-> `/player?category=idCategory`
 
-### [ ] Filter player by clan
--> `/player?clan=nameClan`
+### [x] Filter player by clan
+-> `/player?clan=idClan`

@@ -21,6 +21,10 @@ class PlayerController extends PlayerDao {
   public search(req: Request, res: Response) {
     PlayerController.searchPlayer(req.params.key, res);
   }
+
+  public filter(req: Request, res: Response) {
+    PlayerController.filterPlayers(req.query, res);
+  }
 }
 
 const playerController = new PlayerController();

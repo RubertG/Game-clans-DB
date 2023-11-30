@@ -70,14 +70,32 @@ export async function playerCategoryPlayers(id: Types.ObjectId) {
     .limit(5)
     .exec()
 
-  const players = categoryPlayers.map((player) => {
+  const players = await Promise.all(categoryPlayers.map(async (player) => {
+    const clan = await ClanSchema.findOne({ _id: player.clan })
+
+    if (!clan) return {
+      _id: player._id,
+      gamertag: player.gamertag,
+      points: player.points,
+      clan: null
+    }
+
+    const clanCategory = await ClanCategorySchema.findOne({ _id: clan.clanCategory })
+    console.log(clan)
+
     return {
       _id: player._id,
       gamertag: player.gamertag,
       points: player.points,
-      clan: player.clan
+      clan: {
+        _id: clan._id,
+        name: clan.name,
+        description: clan.description,
+        points: clan.points,
+        clanCategory
+      }
     }
-  })
+  }))
 
   return players
 }

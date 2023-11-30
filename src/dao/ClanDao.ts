@@ -120,6 +120,7 @@ class ClanDao {
         .exec()
 
       if (clan) {
+
         const players = await clanPlayers(clan._id)
 
         const response = {
@@ -134,8 +135,9 @@ class ClanDao {
         res.status(200).json(response)
       } else {
         clan = await ClanSchema.findOne({ _id: key })
-          .populate('playerCategory')
+          .populate('clanCategory')
           .exec()
+
 
         if (clan) {
           const players = await clanPlayers(clan._id)
@@ -154,8 +156,8 @@ class ClanDao {
           res.status(400).json({ response: 'Clan not found.' })
         }
       }
-    } catch (error) {
-      res.status(400).json({ response: 'Clan could not be searched.' })
+    } catch (error: any) {
+      res.status(400).json({ response: 'Clan could not be searched.', error: error.message })
     }
   }
 }
