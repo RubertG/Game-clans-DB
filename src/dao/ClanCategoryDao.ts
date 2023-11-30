@@ -1,8 +1,7 @@
 import { type Response } from 'express'
 import ClanCategorySchema from '../schema/ClanCategorySchema'
 import { ClanCategoryEntity } from '../entity/ClanCategoryEntity'
-import ClanSchema from '../schema/ClanSchema'
-import PlayerSchema from '../schema/PlayerSchema'
+import { clanCategoryClans } from '../utils/utilsDao'
 
 class ClanCategoryDao {
 
@@ -12,36 +11,7 @@ class ClanCategoryDao {
       const clanCategories = await ClanCategorySchema.find().sort({ minPoints: 'ascending' })
 
       const responseData = await Promise.all(clanCategories.map(async (c) => {
-        const categoryClans = await ClanSchema.find({ clanCategory: c._id })
-          .sort({ points: 'descending' })
-          .populate('clanCategory')
-          .limit(5)
-          .exec()
-
-        const clans = await Promise.all(categoryClans.map(async (clan) => {
-          const categoryPlayers = await PlayerSchema.find({ clan: clan._id })
-            .sort({ points: 'descending' })
-            .populate('playerCategory')
-            .limit(5)
-            .exec()
-
-          const players = categoryPlayers.map((player) => {
-            return {
-              _id: player._id,
-              gamertag: player.gamertag,
-              points: player.points,
-              clan: player.clan
-            }
-          })
-
-          return {
-            _id: clan._id,
-            name: clan.name,
-            description: clan.description,
-            points: clan.points,
-            players
-          }
-        }))
+        const clans = await clanCategoryClans(c._id)
 
         return {
           _id: c._id,
@@ -99,26 +69,78 @@ class ClanCategoryDao {
     }
   }
 
-  // update Clan 
-  protected static async updateClanCategory(nameClanCategory: string, params: any, res: Response): Promise<any> {
-    const exists = await ClanCategorySchema.find({ name: nameClanCategory }).exec()
-
-    if (exists) {
-      try {
+  // update Clan category
+  protected static async updateClanCategory(key: string, params: any, res: Response): Promise<any> {
+    try {
+      let exists = await ClanCategorySchema.findOne({ name: key }).exec()
+      
+      if (exists) {
         const result = await ClanCategorySchema.findOneAndUpdate(
-          { name: nameClanCategory },
-          { $set: params }
+          { name: key },
+          { $set: params },
+          { new: true }
         )
         res.status(200).json({
           response: 'Clan category updated successfully.',
           updated: result
         })
-      } catch (error) {
-        res.status(400).json({ response: 'Clan category cannot be updated.' })
+      } else {
+        exists = await ClanCategorySchema.findOne({ _id: key }).exec()
+
+        if (exists) {
+          const result = await ClanCategorySchema.findOneAndUpdate(
+            { _id: key },
+            { $set: params },
+            { new: true }
+          )
+          res.status(200).json({
+            response: 'Clan category updated successfully.',
+            updated: result
+          })
+        } else {
+          res.status(400).json({ response: 'Clan category not found.' })
+        }
       }
-    } else {
-      res.status(400).json({ response: 'Clan category not found.' })
+    } catch (error) {
+      res.status(400).json({ response: 'Clan category cannot be updated.' })
+    }
+  }
+
+  // search clan category
+  protected static async searchClanCategory(key: string, res: Response): Promise<any> {
+    try {
+      let pc = await ClanCategorySchema.findOne({ name: key }).exec()
+
+      if (pc) {
+        const clans = await clanCategoryClans(pc._id)
+        const response = {
+          _id: pc._id,
+          name: pc.name,
+          minPoints: pc.minPoints,
+          maxPoints: pc.maxPoints,
+          clans
+        }
+        res.status(200).json(response)
+      } else {
+        pc = await ClanCategorySchema.findOne({ _id: key }).exec()
+        if (pc) {
+          const clans = await clanCategoryClans(pc._id)
+          const response = {
+            _id: pc._id,
+            name: pc.name,
+            minPoints: pc.minPoints,
+            maxPoints: pc.maxPoints,
+            clans
+          }
+          res.status(200).json(response)
+        } else {
+          res.status(400).json({ response: 'Clan category not found.' })
+        }
+      }
+    } catch (error) {
+      res.status(400).json({ response: 'Clan category could not be searched.' })
     }
   }
 }
+
 export default ClanCategoryDao

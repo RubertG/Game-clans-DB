@@ -12,11 +12,15 @@ class ClanCategoryController extends ClanCategoryDao {
   }
 
   public delete(req: Request, res: Response) {
-    ClanCategoryController.deleteClanCategory(req.params.nameClanCategory, res);
+    ClanCategoryController.deleteClanCategory(req.params.key, res);
   }
 
   public update(req: Request, res: Response) {
-    ClanCategoryController.updateClanCategory(req.params.nameClanCategory, req.body, res);
+    ClanCategoryController.updateClanCategory(req.params.key, req.body, res);
+  }
+
+  public search(req: Request, res: Response) {
+    ClanCategoryController.searchClanCategory(req.params.key, res);
   }
 }
 

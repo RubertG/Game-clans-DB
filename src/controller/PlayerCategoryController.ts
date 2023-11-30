@@ -12,11 +12,15 @@ class PlayerCategoryController extends PlayerCategoryDao {
   }
 
   public delete(req: Request, res: Response) {
-    PlayerCategoryController.deletePlayerCategory(req.params.namePlayerCategory, res);
+    PlayerCategoryController.deletePlayerCategory(req.params.key, res);
   }
 
   public update(req: Request, res: Response) {
-    PlayerCategoryController.updatePlayerCategory(req.params.namePlayerCategory, req.body, res);
+    PlayerCategoryController.updatePlayerCategory(req.params.key, req.body, res);
+  }
+
+  public search(req: Request, res: Response) {
+    PlayerCategoryController.searchPlayerCategory(req.params.key, res);
   }
 }
 

@@ -10,8 +10,9 @@ class ClanCategoryRoute {
   public rutesConfig() {
     this.APIroute.get("/", ClanCategoryController.consult);
     this.APIroute.post("/", ClanCategoryController.create);
-    this.APIroute.delete("/:nameClanCategory", ClanCategoryController.delete);
-    this.APIroute.put("/:nameClanCategory", ClanCategoryController.update);
+    this.APIroute.delete("/:key", ClanCategoryController.delete);
+    this.APIroute.put("/:key", ClanCategoryController.update);
+    this.APIroute.get("/:key", ClanCategoryController.search);
   };
 };
 

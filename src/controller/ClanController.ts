@@ -12,11 +12,15 @@ class ClanController extends ClanDao {
   }
 
   public delete(req: Request, res: Response) {
-    ClanController.deleteClan(req.params.nameClan, res);
+    ClanController.deleteClan(req.params.key, res);
   }
 
   public update(req: Request, res: Response) {
-    ClanController.updateClan(req.params.nameClan, req.body, res);
+    ClanController.updateClan(req.params.key, req.body, res);
+  }
+ 
+  public search(req: Request, res: Response) {
+    ClanController.searchClan(req.params.key, res);
   }
 }
 

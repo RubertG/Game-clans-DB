@@ -1,10 +1,10 @@
 import { type Response } from 'express'
 import PlayerSchema from '../schema/PlayerSchema'
 import { PlayerEntity } from '../entity/PlayerEntity'
-import { playerVerification } from '../utils/verificationsValuesDao'
+import { playerCategoryChange, playerVerification } from '../utils/utilsDao'
+import ClanSchema from '../schema/ClanSchema';
 
 class PlayerDao {
-
   // basic consult 
   protected static async consultPlayer(res: Response): Promise<any> {
     try {
@@ -20,18 +20,12 @@ class PlayerDao {
 
   // create player
   protected static async createPlayer(params: PlayerEntity, res: Response): Promise<any> {
-    const exists = await PlayerSchema.findOne(params)
-    if (exists) {
-      res.status(400).json({ response: 'The player already exists.' })
-    } else {
-      const { categoryExists, clanExists } = await playerVerification(params)
+    try {
+      const exists = await PlayerSchema.findOne(params)
+      await playerVerification(params)
 
-      if (
-        !clanExists && !categoryExists
-        && (typeof clanExists !== 'undefined'
-          || typeof categoryExists !== 'undefined')
-      ) {
-        res.status(404).json({ message: 'The specified clan or category does not exist.' });
+      if (exists) {
+        res.status(400).json({ response: 'The player already exists.' })
       } else {
         const newPlayer = new PlayerSchema(params)
         newPlayer.save()
@@ -41,41 +35,98 @@ class PlayerDao {
           }))
           .catch(() => res.status(400).json({ response: 'Player cannot be created.' }))
       }
+    } catch (error: any) {
+      res.status(400).json({ response: 'Player cannot be created.', error: error.message })
     }
   }
 
   // delete player
-  protected static async deletePlayer(gamertag: string, res: Response): Promise<any> {
-    const exists = await PlayerSchema.findOne({ gamertag }).exec()
+  protected static async deletePlayer(key: string, res: Response): Promise<any> {
+    try {
+      let exists = await PlayerSchema.findOne({ gamertag: key }).exec()
 
-    if (exists) {
-      try {
-        const result = await PlayerSchema.deleteOne({ gamertag })
+      if (exists) {
+        const result = await PlayerSchema.deleteOne({ gamertag: key })
         res.status(200).json({ response: 'Player deleted successfully.', deleted: result })
-      } catch (error) {
-        res.status(400).json({ response: 'Player cannot be deleted.' })
+      } else {
+        exists = await PlayerSchema.findOne({ _id: key }).exec()
+
+        if (exists) {
+          const result = await PlayerSchema.deleteOne({ _id: key })
+          res.status(200).json({ response: 'Player deleted successfully.', deleted: result })
+        } else {
+          res.status(400).json({ response: 'Player not found.' })
+        }
       }
-    } else {
-      res.status(400).json({ response: 'Player not found.' })
+    } catch (error) {
+      res.status(400).json({ response: 'Player cannot be deleted.' })
     }
   }
 
   // update player 
-  protected static async updatePlayer(gamertag: string, params: any, res: Response): Promise<any> {
-    const exists = await PlayerSchema.find({ gamertag }).exec()
+  protected static async updatePlayer(key: string, params: any, res: Response): Promise<any> {
+    try {
+      let exists = await PlayerSchema.findOne({ gamertag: key }).exec()
+      await playerVerification(params)
 
-    if (exists) {
-      try {
+      if (exists) {
+        const playerUpdated = await playerCategoryChange(params, exists)
         const result = await PlayerSchema.findOneAndUpdate(
-          { gamertag },
-          { $set: params }
+          { gamertag: key },
+          { $set: playerUpdated },
+          { new: true }
         )
-        res.status(200).json({ response: 'Player updated successfully.', updated: result })
-      } catch (error) {
-        res.status(400).json({ response: 'Player cannot be updated.' })
+        res.status(200).json({
+          response: 'Player updated successfully.',
+          updated: result
+        })
+      } else {
+        exists = await PlayerSchema.findOne({ _id: key }).exec()
+
+        if (exists) {
+          const playerUpdated = await playerCategoryChange(params, exists)
+          const result = await PlayerSchema.findOneAndUpdate(
+            { _id: key },
+            { $set: playerUpdated },
+            { new: true }
+          )
+          res.status(200).json({
+            response: 'Player updated successfully.',
+            updated: result
+          })
+        } else {
+          res.status(400).json({ response: 'Player not found.' })
+        }
       }
-    } else {
-      res.status(400).json({ response: 'Player not found.' })
+    } catch (error: any) {
+      res.status(400).json({ response: 'Player cannot be updated.', error: error.message })
+    }
+  }
+
+  // search player 
+  protected static async searchPlayer(key: string, res: Response): Promise<any> {
+    try {
+      let player = await PlayerSchema.findOne({ gamertag: key })
+        .populate('clan')
+        .populate('playerCategory')
+        .exec()
+
+      if (player) {
+        res.status(200).json(player)
+      } else {
+        player = await PlayerSchema.findOne({ _id: key })
+          .populate('clan')
+          .populate('playerCategory')
+          .exec()
+
+        if (player) {
+          res.status(200).json(player)
+        } else {
+          res.status(400).json({ response: 'Player not found.' })
+        }
+      }
+    } catch (error) {
+      res.status(400).json({ response: 'Player could not be searched.' })
     }
   }
 }

@@ -2,6 +2,7 @@ import { type Response } from 'express'
 import PlayerCategorySchema from '../schema/PlayerCategorySchema'
 import { PlayerCategoryEntity } from '../entity/PlayerCategoryEntity'
 import PlayerSchema from '../schema/PlayerSchema'
+import { playerCategoryPlayers } from '../utils/utilsDao'
 
 class PlayerCategoryDao {
 
@@ -90,24 +91,74 @@ class PlayerCategoryDao {
   }
 
   // update player 
-  protected static async updatePlayerCategory(namePlayerCategory: string, params: any, res: Response): Promise<any> {
-    const exists = await PlayerCategorySchema.find({ name: namePlayerCategory }).exec()
+  protected static async updatePlayerCategory(key: string, params: any, res: Response): Promise<any> {
+    try {
+      let exists = await PlayerCategorySchema.findOne({ name: key }).exec()
 
-    if (exists) {
-      try {
+      if (exists) {
         const result = await PlayerCategorySchema.findOneAndUpdate(
-          { name: namePlayerCategory },
-          { $set: params }
+          { name: key },
+          { $set: params },
+          { new: true }
         )
         res.status(200).json({
           response: 'Player category updated successfully.',
           updated: result
         })
-      } catch (error) {
-        res.status(400).json({ response: 'Player category cannot be updated.' })
+      } else {
+        exists = await PlayerCategorySchema.findOne({ _id: key }).exec()
+
+        if (exists) {
+          const result = await PlayerCategorySchema.findOneAndUpdate(
+            { _id: key },
+            { $set: params },
+            { new: true }
+          )
+          res.status(200).json({
+            response: 'Player category updated successfully.',
+            updated: result
+          })
+        }
+        res.status(400).json({ response: 'Player category not found.' })
       }
-    } else {
-      res.status(400).json({ response: 'Player category not found.' })
+    } catch (error) {
+      res.status(400).json({ response: 'Player category cannot be updated.' })
+    }
+  }
+
+  // search player
+  protected static async searchPlayerCategory(key: string, res: Response): Promise<any> {
+    try {
+      let pc = await PlayerCategorySchema.findOne({ name: key }).exec()
+
+      if (pc) {
+        const players = await playerCategoryPlayers(pc._id)
+        const response = {
+          _id: pc._id,
+          name: pc.name,
+          minPoints: pc.minPoints,
+          maxPoints: pc.maxPoints,
+          players
+        }
+        res.status(200).json(response)
+      } else {
+        pc = await PlayerCategorySchema.findOne({ _id: key }).exec()
+        if (pc) {
+          const players = await playerCategoryPlayers(pc._id)
+          const response = {
+            _id: pc._id,
+            name: pc.name,
+            minPoints: pc.minPoints,
+            maxPoints: pc.maxPoints,
+            players
+          }
+          res.status(200).json(response)
+        } else {
+          res.status(400).json({ response: 'Player category not found.' })
+        }
+      }
+    } catch (error) {
+      res.status(400).json({ response: 'Player category could not be searched.' })
     }
   }
 }

@@ -1,35 +1,27 @@
 import { type Response } from 'express'
 import ClanSchema from '../schema/ClanSchema'
 import { ClanEntity } from '../entity/ClanEntity'
-import { clanVerification } from '../utils/verificationsValuesDao'
-import PlayerSchema from '../schema/PlayerSchema';
+import { clanCategoryChange, clanPlayers, clanVerification } from '../utils/utilsDao'
 
 class ClanDao {
 
   // basic consult 
   protected static async consultClan(res: Response): Promise<any> {
     try {
-      const clans = await ClanSchema.find().sort({ _id: -1 }).populate('clanCategory').exec();
+      const clans = await ClanSchema.find()
+        .sort({ _id: -1 })
+        .populate('clanCategory')
+        .exec();
 
       // Consulta y construcción de la respuesta para cada clan
       const responseData = await Promise.all(clans.map(async (clan) => {
-        const clanPlayers = await PlayerSchema.find({ clan: clan._id })
-          .sort({ points: -1 })
-          .limit(5)
-          .populate('playerCategory')
-          .exec();
-
-        const players = clanPlayers.map((player) => ({
-          _id: player._id,
-          gamertag: player.gamertag,
-          points: player.points,
-          idCategory: player.playerCategory,
-        }))
+        const players = await clanPlayers(clan._id)
 
         return {
           _id: clan._id,
           name: clan.name,
           description: clan.description,
+          points: clan.points,
           clanCategory: clan.clanCategory,
           players
         };
@@ -43,14 +35,12 @@ class ClanDao {
 
   // create Clan
   protected static async createClan(params: ClanEntity, res: Response): Promise<any> {
-    const exists = await ClanSchema.findOne(params)
-    if (exists) {
-      res.status(400).json({ response: 'The Clan already exists.' })
-    } else {
-      const { categoryExists } = await clanVerification(params)
+    try {
+      const exists = await ClanSchema.findOne({ name: params.name })
+      await clanVerification(params)
 
-      if (!categoryExists && typeof categoryExists !== "undefined") {
-        res.status(404).json({ mensaje: 'The specified clan category does not exist.' });
+      if (exists) {
+        res.status(400).json({ response: 'The Clan already exists.' })
       } else {
         const newClan = new ClanSchema(params)
         newClan.save()
@@ -60,6 +50,8 @@ class ClanDao {
           }))
           .catch(() => res.status(400).json({ response: 'Clan cannot be created.' }))
       }
+    } catch (error: any) {
+      res.status(400).json({ response: 'Clan cannot be created.', error: error.message })
     }
   }
 
@@ -86,21 +78,84 @@ class ClanDao {
   }
 
   // update Clan 
-  protected static async updateClan(nameClan: string, params: any, res: Response): Promise<any> {
-    const exists = await ClanSchema.find({ name: nameClan }).exec()
-
-    if (exists) {
-      try {
+  protected static async updateClan(key: string, params: ClanEntity, res: Response): Promise<any> {
+    try {
+      let exists = await ClanSchema.findOne({ name: key }).exec()
+      await clanVerification(params)
+      
+      if (exists) {
+        const clanUpdate = await clanCategoryChange(params, exists)
         const result = await ClanSchema.findOneAndUpdate(
-          { gamertag: nameClan },
-          { $set: params }
+          { name: key },
+          { $set: clanUpdate },
+          { new: true }
         )
+
         res.status(200).json({ response: 'Clan updated successfully.', updated: result })
-      } catch (error) {
-        res.status(400).json({ response: 'Clan cannot be updated.' })
+      } else {
+        exists = await ClanSchema.findOne({ _id: key }).exec()
+
+        if (exists) {
+          const clanUpdate = await clanCategoryChange(params, exists)
+          const result = await ClanSchema.findOneAndUpdate(
+            { _id: key },
+            { $set: clanUpdate },
+            { new: true }
+          )
+
+          res.status(200).json({ response: 'Clan updated successfully.', updated: result })
+        } else {
+          res.status(400).json({ response: 'Clan not found.' })
+        }
       }
-    } else {
-      res.status(400).json({ response: 'Clan not found.' })
+    } catch (error: any) {
+      res.status(400).json({ response: 'Clan cannot be updated.', error: error.message })
+    }
+  }
+
+  protected static async searchClan(key: string, res: Response): Promise<any> {
+    try {
+      let clan = await ClanSchema.findOne({ name: key })
+        .populate('clanCategory')
+        .exec()
+
+      if (clan) {
+        const players = await clanPlayers(clan._id)
+
+        const response = {
+          _id: clan._id,
+          name: clan.name,
+          description: clan.description,
+          clanCategory: clan.clanCategory,
+          points: clan.points,
+          players
+        };
+
+        res.status(200).json(response)
+      } else {
+        clan = await ClanSchema.findOne({ _id: key })
+          .populate('playerCategory')
+          .exec()
+
+        if (clan) {
+          const players = await clanPlayers(clan._id)
+
+          const response = {
+            _id: clan._id,
+            name: clan.name,
+            description: clan.description,
+            clanCategory: clan.clanCategory,
+            points: clan.points,
+            players
+          };
+
+          res.status(200).json(response)
+        } else {
+          res.status(400).json({ response: 'Clan not found.' })
+        }
+      }
+    } catch (error) {
+      res.status(400).json({ response: 'Clan could not be searched.' })
     }
   }
 }

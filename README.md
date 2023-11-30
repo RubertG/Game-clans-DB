@@ -32,39 +32,10 @@ Database for the game with players, clans and categories of players and clans. T
 
 ## TODO
 
-### [ ] Methods GET, POST, PUT AND DELETE for each collection (Basic)
-### [ ] Change player points. When changing it, check if there is a change in category
--> `/player/{id}`
+### [x] Methods GET basics
 
-#### Input
-```json
-[
-  {
-    "pointsToAdd": 100 // number of points to add
-  }
-]
-```
+### [x] Retrieve all objects by id or name
 
-### [ ] Change clans points. When changing it, check if there is a change in category
--> `/clan/{id}`
-
-#### Input
-```json
-[
-  {
-    "pointsToAdd": 100 // number of points to add
-  }
-]
-```
-
-### [ ] Filter player by category
--> `/player?category=nameCategory`
-### [ ] Filter player by clan
--> `/player?clan=nameClan`
-### [ ] Order players by points
--> `/player?order=points`
-### [ ] Order clan by points
--> `/clan?order=points`
 ### [x] Retrieve clans along with the gamertags of the main players  
 -> `/clan`
 
@@ -142,3 +113,15 @@ Database for the game with players, clans and categories of players and clans. T
   }
 ]
 ```
+
+### [x] POST 
+
+### [x] PUT 
+
+### [x] DELETE 
+
+### [ ] Filter player by category
+-> `/player?category=nameCategory`
+
+### [ ] Filter player by clan
+-> `/player?clan=nameClan`

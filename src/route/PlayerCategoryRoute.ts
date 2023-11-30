@@ -10,8 +10,9 @@ class PlayerCategoryRuta {
   public rutesConfig() {
     this.APIroute.get("/", PlayerCategoryController.consult);
     this.APIroute.post("/", PlayerCategoryController.create);
-    this.APIroute.delete("/:namePlayerCategory", PlayerCategoryController.delete);
-    this.APIroute.put("/:namePlayerCategory", PlayerCategoryController.update);
+    this.APIroute.delete("/:key", PlayerCategoryController.delete);
+    this.APIroute.put("/:key", PlayerCategoryController.update);
+    this.APIroute.get("/:key", PlayerCategoryController.search);
   };
 };
 

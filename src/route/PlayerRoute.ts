@@ -10,8 +10,9 @@ class PlayerRoute {
   public rutesConfig() {
     this.APIroute.get("/", PlayerController.consult);
     this.APIroute.post("/", PlayerController.create);
-    this.APIroute.delete("/:gamertag", PlayerController.delete);
-    this.APIroute.put("/:gamertag", PlayerController.update);
+    this.APIroute.delete("/:key", PlayerController.delete);
+    this.APIroute.put("/:key", PlayerController.update);
+    this.APIroute.get("/:key", PlayerController.search)
   };
 };
 
