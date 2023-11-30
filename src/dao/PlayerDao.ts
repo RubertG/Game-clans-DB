@@ -2,7 +2,6 @@ import { type Response } from 'express'
 import PlayerSchema from '../schema/PlayerSchema'
 import { PlayerEntity } from '../entity/PlayerEntity'
 import { playerCategoryChange, playerVerification } from '../utils/utilsDao'
-import ClanSchema from '../schema/ClanSchema';
 
 class PlayerDao {
   // basic consult 

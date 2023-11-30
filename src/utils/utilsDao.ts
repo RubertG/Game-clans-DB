@@ -17,7 +17,7 @@ export async function clanPlayers(id: Types.ObjectId) {
     _id: player._id,
     gamertag: player.gamertag,
     points: player.points,
-    idCategory: player.playerCategory,
+    playerCategory: player.playerCategory,
   }))
 
   return players
@@ -121,7 +121,6 @@ export async function clanCategoryChange(clan: ClanEntity, prevClan: ClanEntity)
 export async function clanCategoryClans(id: Types.ObjectId) {
   const categoryClans = await ClanSchema.find({ clanCategory: id })
     .sort({ points: 'descending' })
-    .populate('clanCategory')
     .limit(5)
     .exec()
 

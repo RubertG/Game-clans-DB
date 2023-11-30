@@ -8,7 +8,7 @@ Database for the game with players, clans and categories of players and clans. T
   - **_id**: string
   - **gamerTag**: string
   - **points**: number
-  - **category**: ID PlayerCategory or PlayerCategory
+  - **category**: ID PlayerCategory 
   - **clan**: ID Clan or Clan
 
 2. Clan:
@@ -16,7 +16,7 @@ Database for the game with players, clans and categories of players and clans. T
   - **name**: string
   - **description**: string
   - **points**: number
-  - **clanCategory**: ID ClanCategory or ClanCategory
+  - **clanCategory**: ID ClanCategory 
 
 3. PlayerCategory:
   - **_id**: string
@@ -46,6 +46,7 @@ Database for the game with players, clans and categories of players and clans. T
     "_id": "id clan",
     "name": "name clan",
     "description": "clan description",
+    "points": 123,
     "players": [
       {
         "_id": "id player",
@@ -69,6 +70,8 @@ Database for the game with players, clans and categories of players and clans. T
     "_id": "id category",
     "name": "name category",
     "description": "category description",
+    "maxPoints": 123,
+    "minPoints": 123,
     "players": [
       {
         "_id": "id player",
@@ -92,6 +95,8 @@ Database for the game with players, clans and categories of players and clans. T
     "_id": "id category",
     "name": "name category",
     "description": "category description",
+    "maxPoints": 123,
+    "minPoints": 123,
     "clans": [
       {
         "_id": "id category",
