@@ -36,10 +36,9 @@ export async function playerVerification(params: PlayerEntity) {
   }
 }
 
-export async function playerCategoryChange(player: PlayerEntity, prevPlayer: PlayerEntity) {
+export async function playerCategoryChange(player: PlayerEntity, prevPoints: number) {
   const playerCategory = await PlayerCategorySchema.find()
   const { points } = player
-  const { points: prevPoints } = prevPlayer
   let playerUpdated
 
   if (!points) {

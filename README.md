@@ -146,7 +146,11 @@ Database for the game with players, clans and categories of players and clans. T
 ### [x] DELETE 
 
 ### [x] Filter player by category
--> `/player?category=idCategory`
+-> `/player/filter?category=idCategory`
 
 ### [x] Filter player by clan
--> `/player?clan=idClan`
+-> `/player/filter?clan=idClan`
+
+### [x] Password encryption
+
+### [X] JSON web tokens at Player

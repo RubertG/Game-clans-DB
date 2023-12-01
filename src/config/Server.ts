@@ -7,6 +7,7 @@ import PlayerRoutes from "../route/PlayerRoute";
 import PlayerCategory from "../route/PlayerCategoryRoute";
 import Clan from "../route/ClanRoute";
 import ClanCategory from "../route/ClanCategoryRoute";
+import Segurity from "../middleware/Segurity";
 
 class Server {
   public app: express.Application;
@@ -29,7 +30,7 @@ class Server {
   };
 
   public initiateRoutes() {
-    this.app.use("/player", PlayerRoutes);
+    this.app.use("/player", Segurity.verifyToken, PlayerRoutes);
     this.app.use("/player-category", PlayerCategory);
     this.app.use("/clan", Clan);
     this.app.use("/clan-category", ClanCategory);

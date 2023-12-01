@@ -2,11 +2,9 @@ import { type Response } from 'express'
 import PlayerSchema from '../schema/PlayerSchema'
 import { PlayerEntity } from '../entity/PlayerEntity'
 import { playerCategoryChange, playerVerification } from '../utils/utilsDao'
-
-interface TypeQuery {
-  clan?: string
-  category?: string
-}
+import bcryptjs from "bcryptjs"
+import jwt from "jsonwebtoken"
+import { TypeQuery } from '../Types'
 
 class PlayerDao {
   // basic consult 
@@ -26,16 +24,26 @@ class PlayerDao {
   protected static async createPlayer(params: PlayerEntity, res: Response): Promise<any> {
     try {
       const exists = await PlayerSchema.findOne(params)
-      await playerVerification(params)
-
+      
       if (exists) {
         res.status(400).json({ response: 'The player already exists.' })
       } else {
-        const newPlayer = new PlayerSchema(params)
+        await playerVerification(params) // verificar idClan e idPlayerCategory
+        const playerUpdated = await playerCategoryChange(params, 0) // verificar los puntos 
+        playerUpdated.password = bcryptjs.hashSync(playerUpdated.password, 10)
+        const newPlayer = new PlayerSchema(playerUpdated)
+        const secretKey = String(process.env.SECRET_PASSWORD)
+        const token = jwt.sign({
+          id: newPlayer._id,
+          gamertag: newPlayer.gamertag
+        }, secretKey, {
+          expiresIn: 604800 // semana 
+        })
         newPlayer.save()
           .then(() => res.status(200).json({
             response: 'Player created successfully.',
-            player: newPlayer
+            player: newPlayer,
+            token
           }))
           .catch(() => res.status(400).json({ response: 'Player cannot be created.' }))
       }
@@ -74,7 +82,7 @@ class PlayerDao {
       await playerVerification(params)
 
       if (exists) {
-        const playerUpdated = await playerCategoryChange(params, exists)
+        const playerUpdated = await playerCategoryChange(params, exists.points)
         const result = await PlayerSchema.findOneAndUpdate(
           { gamertag: key },
           { $set: playerUpdated },
@@ -88,7 +96,7 @@ class PlayerDao {
         exists = await PlayerSchema.findOne({ _id: key }).exec()
 
         if (exists) {
-          const playerUpdated = await playerCategoryChange(params, exists)
+          const playerUpdated = await playerCategoryChange(params, exists.points)
           const result = await PlayerSchema.findOneAndUpdate(
             { _id: key },
             { $set: playerUpdated },
