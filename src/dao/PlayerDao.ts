@@ -32,11 +32,11 @@ class PlayerDao {
         const playerUpdated = await playerCategoryChange(params, 0) // verificar los puntos 
         playerUpdated.password = bcryptjs.hashSync(playerUpdated.password, 10)
         const newPlayer = new PlayerSchema(playerUpdated)
-        const secretKey = String(process.env.SECRET_PASSWORD)
+        const secretPassword = String(process.env.SECRET_PASSWORD)
         const token = jwt.sign({
           id: newPlayer._id,
           gamertag: newPlayer.gamertag
-        }, secretKey, {
+        }, secretPassword, {
           expiresIn: 604800 // semana 
         })
         newPlayer.save()
