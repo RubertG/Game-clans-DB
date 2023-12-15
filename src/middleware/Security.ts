@@ -2,7 +2,7 @@
 import { NextFunction, Request, Response } from 'express'
 import jwt from 'jsonwebtoken'
 
-class Segurity {
+class Security {
   public verifyToken(req: Request, res: Response, next: NextFunction) {
     if (req.headers.authorization) {
       try {
@@ -23,5 +23,5 @@ class Segurity {
   }
 }
 
-const segurity = new Segurity()
-export default segurity
+const security = new Security()
+export default security

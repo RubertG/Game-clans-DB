@@ -1,6 +1,6 @@
 import { Router } from "express";
 import PlayerController from "../controller/PlayerController";
-import Segurity from "../middleware/Segurity";
+import Segurity from "../middleware/Security";
 
 class PlayerRoute {
   public APIroute: Router;
